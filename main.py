@@ -39,7 +39,7 @@ def libraryID():
     libcount = len(liblist)
     libidlist = []
     for i in liblist:
-        libidlist.append(i["Location"][0]["id"])
+        libidlist.append(i["key"])
     return libidlist
 
 
