@@ -31,6 +31,7 @@ app = application = bottle.default_app()
 
 #fetching all libraries IDs
 def libraryID():
+    logging.info('Fetching library IDs')
     session = requests.Session()
     session.verify = False
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -40,6 +41,9 @@ def libraryID():
     libidlist = []
     for i in liblist:
         libidlist.append(i["key"])
+
+    logging.info('Found the following IDs: ' + str(libidlist))
+
     return libidlist
 
 
@@ -76,17 +80,14 @@ def refresh():
     # parse input data
         try:
             logging.info('Checking your POST data...!')
-            data = bottle.request.json
+            data = bottle.request.query.dir or ''
+            logging.info('Received: ' + data)
         except:
             logging.error('Could not process your POST data. check if the data is in JSON format and the header is correctly configured!')
             raise ValueError
 
         if data is None:
-            logging.error('No data have been recived, did you include a JSON formated data?')
-            raise ValueError
-
-        if "dir" not in data:
-            logging.error('There is no "dir" field in the sent JSON data. ')
+            logging.error('No data have been received, did you include a JSON formatted data?')
             raise ValueError
 
     except ValueError:
@@ -102,11 +103,11 @@ def refresh():
 
     try:
         for i in contentMetadataID().keys():
-            if data["dir"] in i:
+            if data in i:
                 metaid = contentMetadataID()[i]
                 logging.info('Found a match in your library, metadata ID is ' + str(metaid))
-            elif i in data["dir"]: # Basicly tv shows as they have one metadata
-                logging.warn('Did not find a match in the library, seems like this is a TV series')
+            elif i in data: # Basicly tv shows as they have one metadata
+                logging.warning('Did not find a match in the library, seems like this is a TV series')
                 metaid = contentMetadataID()[i]
                 logging.info('Found a match for a TV series')
         # Send the request for the metadata refresh
