@@ -80,10 +80,11 @@ def refresh():
     # parse input data
         try:
             logging.info('Checking your POST data...!')
-            data = bottle.request.query.dir or ''
-            logging.info('Received: ' + data)
-        except:
+            data = bottle.request.body.getvalue().decode('UTF-8')
+            logging.info('Received: ' + str(data))
+        except Exception as error:
             logging.error('Could not process your POST data. check if the data is in JSON format and the header is correctly configured!')
+            logging.error(error)
             raise ValueError
 
         if data is None:
